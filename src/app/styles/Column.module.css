@@ -6,10 +6,15 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-width: 300px;
   height: 75vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .taskList {
   margin-top: 10px;
+  height: '100%';
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
 .taskCard {
@@ -22,7 +27,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   height: 120px;
   overflow: hidden;
 }
@@ -31,16 +36,16 @@
   font-size: 1.1rem;
   font-weight: bold;
   color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 0px;
 }
 
 .taskDescription {
   font-size: 0.9rem;
   color: #666;
+  margin-top: 0px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap; 
-  max-width: 100%;
+  white-space: nowrap;
 }
 
 .taskCardActions {
