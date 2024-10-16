@@ -2,9 +2,10 @@
 
 import Column from "../molecules/Column";
 import styles from "../../styles/TaskBoard.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactModal from "react-modal";
-import CreateTaskForm from "../molecules/CreateTaskForm";
+import TaskForm from "../molecules/TaskForm";
+import TaskCard from "../molecules/TaskCard";
 
 const TaskBoard = () => {
     const columns = [
@@ -13,46 +14,117 @@ const TaskBoard = () => {
         { id: 'in-review', title: 'In-Review' },
         { id: 'done', title: 'Done' }
     ]
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-    const [tasks, setTasks] = useState({
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // getting cached tasks
+    const cachedTasks = localStorage.getItem('tasks');
+    let initialTasks = {
         'to-do': [],
         'in-progress': [],
         'in-review': [],
         'done': []
-    })
+    }
+    if (cachedTasks) {
+        initialTasks = JSON.parse(cachedTasks);
+    }
 
-    const createTask = (task) => {
-        const newTask = {
-            title: task.title,
-            description: task.description
+    const [tasks, setTasks] = useState(initialTasks)
+
+    // current editable task
+    const [editTaskData, setEditTaskData] = useState(null);
+
+    // common fn for both create and update
+    const addTask = (task) => {
+        // if we are modifiying existing task we delete and create a new one (simplifies handling columns-task data structure)
+        if (!!editTaskData) {
+            const indexToDelete = tasks[editTaskData?.status]?.findIndex((task) => task.id === editTaskData?.id);
+            tasks[editTaskData?.status]?.splice(indexToDelete, 1);
         }
         const column = task.status;
+        const newTask = {
+            id: new Date().getTime(),
+            title: task.title,
+            description: task.description,
+            status: column
+        }
+
         setTasks((prevTasks) => ({
             ...prevTasks,
             [column]: [...prevTasks[column], newTask]
         }))
 
-        setIsCreateModalOpen(false);
+        setIsModalOpen(false);
+        if (!!editTaskData) {
+            setEditTaskData(null);
+        }
     }
-    return (<div className={styles.taskBoard}>
-        <button className={styles.createTaskButton} onClick={() => setIsCreateModalOpen(true)}>
-            Create Task
-        </button>
 
-        {columns.map((col) => {
-            return (<Column key={col.id} title={col.title} tasks={tasks[col.id]} />)
-        })}
+    const deleteTask = (task) => {
+        const column = task.status;
+        const deleteItemInd = tasks[column]?.findIndex((item) => task.id === item.id);
+
+        if (deleteItemInd !== -1) {
+            setTasks((prevTasks) => {
+                const updatedTasks = {
+                    ...prevTasks,
+                    [column]: [
+                        ...prevTasks[column].slice(0, deleteItemInd),
+                        ...prevTasks[column].slice(deleteItemInd + 1),
+                    ]
+                };
+                return updatedTasks;
+            });
+        }
+    }
+
+    const handleCreateTask = () => {
+        setEditTaskData(null);
+        setIsModalOpen(true);
+    }
+
+    const handleEditTask = (task) => {
+        setEditTaskData(task);
+        setIsModalOpen(true);
+    }
+
+    // cache any changes to tasks
+    useEffect(() => {
+        localStorage.setItem('tasks', JSON.stringify(tasks))
+    }, [tasks])
+
+    return (<div>
+        <div className={styles.header}>
+            <h1>Task Board</h1>
+            <button className={styles.createTaskButton} onClick={handleCreateTask}>
+                Create Task
+            </button>
+        </div>
+
+        <div className={styles.taskBoard}>
+            {columns.map((col) => {
+                return (<Column key={col.id} title={col.title}>{
+                    tasks[col.id].map(task => (
+                        <TaskCard
+                            key={task.title}
+                            task={task}
+                            onEdit={handleEditTask}
+                            onDelete={deleteTask}
+                        />
+                    ))
+                }</Column>)
+            })}
+        </div>
 
         <ReactModal
-            isOpen={isCreateModalOpen}
-            onRequestClose={() => setIsCreateModalOpen(false)}
+            isOpen={isModalOpen}
+            onRequestClose={() => setIsModalOpen(false)}
             className={styles.modalContent}
             overlayClassName={styles.modalOverlay}
         >
-            <button className={styles.closeButton} onClick={() => setIsCreateModalOpen(false)}>&times;</button>
-            <h2>Create a Task</h2>
-            <CreateTaskForm createTask={createTask} />
+            <button className={styles.closeButton} onClick={() => setIsModalOpen(false)}>&times;</button>
+            <h2>{!!editTaskData ? "Edit Task" : "Create a Task"}</h2>
+            <TaskForm addTask={addTask} editTaskData={editTaskData} />
         </ReactModal>
     </div>)
 }

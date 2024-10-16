@@ -1,11 +1,12 @@
 .taskBoard {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    margin: 0 auto;
-    width: 90%;
-    max-width: 1200px;
-  }  
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 1200px;
+  gap: 20px;
+}
 
 .createTaskButton {
   padding: 10px 20px;
@@ -22,7 +23,6 @@
   background-color: #218838;
 }
 
-/* Modal styles */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -87,4 +87,14 @@
   margin-bottom: 5px;
   font-weight: bold;
   color: #333;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
 }

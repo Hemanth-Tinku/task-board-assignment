@@ -1,15 +1,15 @@
 import { useState } from "react"
 import styles from "../../styles/TaskBoard.module.css";
 
-const CreateTaskForm = ({ createTask }) => {
+const TaskForm = ({ addTask, editTaskData }) => {
     const [task, setTask] = useState({
-        title: '',
-        description: '',
-        status: 'to-do'
+        title: editTaskData?.title ?? '',
+        description: editTaskData?.description ?? '',
+        status: editTaskData?.status ?? 'to-do'
     })
     const handleFormSubmit = (e) => {
         e.preventDefault();
-        createTask(task);
+        addTask(task);
     }
     return (<form onSubmit={handleFormSubmit} className={styles.createTaskForm}>
         <div>
@@ -55,9 +55,9 @@ const CreateTaskForm = ({ createTask }) => {
             </select>
         </div>
         <button type="submit" className={styles.submitButton}>
-            Add Task
+            {!!editTaskData ? "Update Task" : "Add Task"}
         </button>
     </form>)
 }
 
-export default CreateTaskForm;
+export default TaskForm;
