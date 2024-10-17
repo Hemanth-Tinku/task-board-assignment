@@ -17,8 +17,11 @@ const TaskBoard = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    let cachedTasks;
     // getting cached tasks
-    const cachedTasks = localStorage.getItem('tasks');
+    if (typeof window !== "undefined") {
+        cachedTasks = window.localStorage.getItem('tasks');
+    }
     let initialTasks = {
         'to-do': [],
         'in-progress': [],
@@ -90,7 +93,9 @@ const TaskBoard = () => {
 
     // cache any changes to tasks
     useEffect(() => {
-        localStorage.setItem('tasks', JSON.stringify(tasks))
+        if (typeof window !== "undefined") {
+            window.localStorage.setItem('tasks', JSON.stringify(tasks))
+        }
     }, [tasks])
 
     return (<div>

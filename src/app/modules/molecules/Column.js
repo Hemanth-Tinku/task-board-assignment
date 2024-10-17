@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "../../styles/Column.module.css";
 
 const Column = ({ title, children }) => {
